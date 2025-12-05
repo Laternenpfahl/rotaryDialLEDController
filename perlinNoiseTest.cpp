@@ -7,9 +7,16 @@ const int checkRotPin = 2;
 const int pulsePin = 3;
 const int myNodes = 3;
 const int mySteps = 5;
+const int mySize = (myNodes-1)*mySteps;
 
 void genCoordinates(float coords[], int nodes, int steps);
 void genGradient(float grad[], int nodes);
+float calcPerlinVal(float offsetsX[], 
+                    float offsetsY[],
+                    float gradx[],
+                    float grady[]);
+void calcOffsets(float offsetsX[], float offsetsY[], float coordx, float coordy);
+
 
 int main(){
 
@@ -18,21 +25,62 @@ int main(){
   float grady0[myNodes];
   float gradx1[myNodes];
   float grady1[myNodes];
+  float cellGradX[4];
+  float cellGradY[4];
   float offsetsX[4];
   float offsetsY[4];
-  float dotProducts[4];
+  float ledVals[mySize];
+  int cellCount = 0;
 
   srand(time(0));
 
   genCoordinates(myCoords, myNodes, mySteps);
-  genGradient(gradx, myNodes);
-  genGradient(grady, myNodes);
+  genGradient(gradx0, myNodes);
+  genGradient(grady0, myNodes);
+  genGradient(gradx1, myNodes);
+  genGradient(grady1, myNodes); // THIS NEEDS TO GO IN SETUP
 
+  cout << "myArray = [";
 
-  for(int i=0; i<myNodes; i++)
+  for(int i=0; i<mySteps; i++) // loop over y-coordinates
   {
-    cout << "x:" << gradx[i] << ", y:" << grady[i] << endl;
+    for(int j=0; j<mySize; j++)
+    {
+
+      cellGradX[0] = gradx0[cellCount];     // a bit confusing, since we have xy in gradient coordinates and xy in "corner" coordinates...
+      cellGradX[1] = gradx0[cellCount + 1]; // cellGradX[0] and cellgradY[0] are gradient xy-values for 00 corner of current cell, [1] is 01 etc
+      cellGradX[2] = gradx1[cellCount];
+      cellGradX[3] = gradx1[cellCount + 1];
+
+      cellGradY[0] = grady0[cellCount];
+      cellGradY[1] = grady0[cellCount + 1];
+      cellGradY[2] = grady1[cellCount];
+      cellGradY[3] = grady1[cellCount + 1];
+
+
+      calcOffsets(offsetsX, offsetsY, myCoords[j]-cellCount, myCoords[i]); // coords are symmetrical in x and y
+      ledVals[j] = calcPerlinVal(offsetsX, offsetsY, cellGradX, cellGradY); // we calc the whole x-direction and pass it to the LEDs. y direction gives us time dynamics
+    
+      cout << ledVals[j] << ",";
+
+      if(myCoords[j]-cellCount >= 1) cellCount++;
+    }
+
+    if(i==mySteps-1) //THIS NEEDS TO GO IN LOOP
+    {
+      for(int v=0;v<myNodes;v++)
+      {
+        gradx0[v] = gradx1[v]; // turn second row array into first row array for continuity
+      }
+
+      genGradient(gradx1, myNodes); // calc new random gradients
+      genGradient(grady1, myNodes);
+
+    }
+
   }
+
+  cout << "]" << endl;
 
   return 0;
 
@@ -77,9 +125,11 @@ float calcPerlinVal(float offsetsX[],
     valsToInterpolate[i] = offsetsX[i] * gradx[i] + offsetsY[i] * grady[i];
   }
 
-  f0 = valsToInterpolate[0] 
+  f0 = valsToInterpolate[0] * interpolant(1-offsetsX[0]) + valsToInterpolate[1] * interpolant(offsetsX[0]);
+  f1 = valsToInterpolate[2] * interpolant(1-offsetsX[0]) + valsToInterpolate[3] * interpolant(offsetsX[0]);
+  perlinVal = f0 * interpolant(1-offsetsY[0]) + f1 * interpolant(offsetsY[0]);
 
-  return perlinVal;
+  return 255 * (perlinVal+1)/2;
 
 }
 
@@ -92,10 +142,6 @@ void genCoordinates(float coords[], int nodes, int steps)
   {
     coords[j] = k*stepSize;
     k++;
-
-    cout << coords[j] << endl;
-
-    if(k==steps) k=0;
   }
 }
 
