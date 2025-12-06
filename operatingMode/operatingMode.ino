@@ -1,4 +1,4 @@
-//#include <Adafruit_NeoPixel.h>
+#include <Adafruit_NeoPixel.h>
 
 #define LED_PIN     5 // The pin where the data line is connected
 #define LED_COUNT  61 // Number of LEDs in the strip
@@ -92,12 +92,14 @@ void loop() {
 
       for(int led=0; led<mySize; led++) //light em up
       {
-          rgb[0] = round(RledVals[led] / 2.0);
-          rgb[1] = round(GledVals[led]) ;
-          rgb[2] = round((BledVals[led] + 255) / 2.0);
+          rgb[0] = round((RledVals[led] + 510) / 3);
+          rgb[1] = round(GledVals[led]) / 2 ;
+          rgb[2] = round(BledVals[led] / 8.0);
 
-          strip.setPixelColor(i, strip.Color(rgb[0],rgb[1],rgb[2]));
+          strip.setPixelColor(led, strip.Color(rgb[0],rgb[1],rgb[2]));
       }      
+
+      strip.setPixelColor(60, strip.Color(rgb[0],rgb[1],rgb[2])); // setting last LED to second to last color bc I cut the strip at a stupid place
 
       strip.show();
       delay(25);
@@ -235,11 +237,11 @@ void loop() {
 
       if (count == 7)
       {
-        for (int h=0;h<120;h=h+4) // softstart all blue 
+        for (int h=0;h<120;h=h+2)
         {
-          rgb[0] = 0;
-          rgb[1] = 0;
-          rgb[2] = 2*h;
+          rgb[0] = 2*h;
+          rgb[1] = 0.5*h;
+          rgb[2] = 0;
           strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
           strip.show();
           delay(25);
@@ -360,8 +362,6 @@ void calcOcean(float gradx0[], float grady0[], float gradx1[], float grady1[], f
 
       calcOffsets(offsetsX, offsetsY, coords[j]-cellCount, yChoord); // coords are symmetrical in x and y
       ledVals[j] = calcPerlinVal(offsetsX, offsetsY, cellGradX, cellGradY); // we calc the whole x-direction and pass it to the LEDs. y direction gives us time dynamics
-    
-      cout << ledVals[j] << ",";
 
       if(myCoords[j]- cellCount >= 1) cellCount++;
     }
