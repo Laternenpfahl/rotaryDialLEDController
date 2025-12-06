@@ -10,7 +10,7 @@ const int mySteps = 5;
 const int mySize = (myNodes-1)*mySteps;
 
 void genCoordinates(float coords[], int nodes, int steps);
-void genGradient(float grad[], int nodes);
+void genGradient(float gradx[], float grady[], int nodes);
 float calcPerlinVal(float offsetsX[], 
                     float offsetsY[],
                     float gradx[],
@@ -32,13 +32,11 @@ int main(){
   float ledVals[mySize];
   int cellCount = 0;
 
-  srand(time(0));
+  srand(time({}));
 
   genCoordinates(myCoords, myNodes, mySteps);
-  genGradient(gradx0, myNodes);
-  genGradient(grady0, myNodes);
-  genGradient(gradx1, myNodes);
-  genGradient(grady1, myNodes); // THIS NEEDS TO GO IN SETUP
+  genGradient(gradx0, grady0, myNodes);
+  genGradient(gradx1, grady1, myNodes);// THIS NEEDS TO GO IN SETUP
 
   cout << "myArray = [";
 
@@ -63,19 +61,20 @@ int main(){
     
       cout << ledVals[j] << ",";
 
-      if(myCoords[j]-cellCount >= 1) cellCount++;
+      if(myCoords[j]- cellCount >= 1) cellCount++;
     }
+
+    cellCount = 0; // stepped through x-axis -> new timestep, so reset cellcount
 
     if(i==mySteps-1) //THIS NEEDS TO GO IN LOOP
     {
       for(int v=0;v<myNodes;v++)
       {
-        gradx0[v] = gradx1[v]; // turn second row array into first row array for continuity
+        gradx0[v] = gradx1[v];
+        grady0[v] = grady1[v]; // turn second row array into first row array for continuity
       }
 
-      genGradient(gradx1, myNodes); // calc new random gradients
-      genGradient(grady1, myNodes);
-
+      genGradient(gradx1, grady1, myNodes); // calc new random gradients
     }
 
   }
@@ -145,12 +144,19 @@ void genCoordinates(float coords[], int nodes, int steps)
   }
 }
 
-void genGradient(float grad[], int nodes)
+void genGradient(float gradx[], float grady[], int nodes)
 {
   for (int n=0;n<nodes;n++)
   {
-    grad[n] = (rand() % 255) / 255.0;
-    grad[n] = (grad[n] - 0.5) * 2;
+    gradx[n] = (rand() % 255) / 255.0;
+    gradx[n] = (gradx[n] - 0.5) * 2;
+
+    grady[n] = (rand() % 255) / 255.0;
+    grady[n] = (grady[n] - 0.5) * 2;
+
+    gradx[n] = gradx[n] / sqrt(gradx[n]*gradx[n] + grady[n]*grady[n]); // normalize vector
+    grady[n] = grady[n] / sqrt(gradx[n]*gradx[n] + grady[n]*grady[n]); // normalize vector
+  
   }
 }
 
