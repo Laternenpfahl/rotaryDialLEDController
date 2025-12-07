@@ -10,6 +10,11 @@ const int checkRotPin = 2;
 const int pulsePin = 3;
 uint8_t rgb[3]={0,0,0};
 
+// remembers position during loop
+uint16_t offset = 0;
+// colorchange per pixel -> high number skips more colors, but u get more rainbowcycles within one strip
+int rainbowSpeed = 1;
+uint16_t colorIndex = 0;
 
 bool rainbowAnimation = 0;
 
@@ -42,11 +47,6 @@ void loop() {
   int flip1 = 0;
   int flip2 = 0;
   int count = 0;
-  // remembers position during loop
-  uint16_t offset = 0;
-  // colorchange per pixel -> high number skips more colors, but u get more rainbowcycles within one strip
-  int rainbowSpeed = 1;
-  uint16_t colorIndex = 0;
   
   if(rainbowAnimation && checkRot)
   {
@@ -55,7 +55,8 @@ void loop() {
     {
       // offset + pixel index → makes colors "move"
       colorIndex = (i * rainbowSpeed + offset) & 255;
-      strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
+      wheel(colorIndex, rgb);
+      strip.setPixelColor(i, strip.Color(rgb[0], rgb[1], rgb[2]));
     }
 
   strip.show();
