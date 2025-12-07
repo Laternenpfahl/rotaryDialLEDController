@@ -18,11 +18,12 @@ uint16_t offset = 0;
 int rainbowSpeed = 5;
 uint16_t colorIndex = 0;
 bool rainbowAnimation = 0;
+bool ocean = 0;
 
 
 // Perlin Noise Stuff
-const int myNodes = 7;
-const int mySteps = 10;
+const int myNodes = 5;
+const int mySteps = 15;
 const int mySize = (myNodes-1)*mySteps;
 float myCoords[(myNodes-1)*mySteps];
 
@@ -126,11 +127,25 @@ void loop() {
 
       for(int led=0; led<mySize; led++) //light em up
       {
-          rgb[2] = round((RledVals[led]) / 10);
-          rgb[1] = round(GledVals[led]) / 4;
-          rgb[0] = round((BledVals[led] + 125) / 1.5);
+
+        if(ocean)
+        {
+          rgb[0] = round((RledVals[led]) / 10);
+          rgb[1] = round(GledVals[led]);
+          rgb[2] = round((BledVals[led]) * 1.3) & 255;
 
           strip.setPixelColor(led, strip.Color(rgb[0],rgb[1],rgb[2]));
+        }
+
+        else
+        {
+          // fire animation
+          rgb[2] = round((RledVals[led]) / 10);
+          rgb[1] = round(GledVals[led] / 2.5);
+          rgb[0] = round((BledVals[led]) * 1.3) & 255;
+
+          strip.setPixelColor(led, strip.Color(rgb[0],rgb[1],rgb[2]));
+        }
       }      
 
       strip.setPixelColor(60, strip.Color(rgb[0],rgb[1],rgb[2])); // setting last LED to second to last color bc I cut the strip at a stupid place
@@ -194,6 +209,7 @@ void loop() {
     if(count>0)
     {
       oceanAnimation = 0;
+      ocean = 0;
       rainbowAnimation = 0;
       Serial.print("r-Value: ");
       Serial.println(rgb[0]);
@@ -272,11 +288,28 @@ void loop() {
 
       if (count == 7)
       {
-        for (int h=0;h<120;h=h+2)
+        for (int h=0;h<130;h=h+5)
         {
-          rgb[0] = 2*h;
-          rgb[1] = 0.5*h;
+          rgb[0] = 0;
+          rgb[1] = h;
+          rgb[2] = 1.3*h;
+          strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
+          strip.show();
+          delay(25);
+        }
+        ocean = 1;
+        oceanAnimation = 1; // turn on animation
+      }
+
+//////////////////////////////
+
+      if (count == 8)
+      {
+        for (int h=0;h<130;h=h+5)
+        {
           rgb[2] = 0;
+          rgb[1] = h/2.5;
+          rgb[0] = 1.3*h;
           strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
           strip.show();
           delay(25);
@@ -284,10 +317,9 @@ void loop() {
 
         oceanAnimation = 1; // turn on animation
       }
-
 /////////////////////////////////
 
-      if (count == 8)
+      if (count == 9)
       {
         for (int h=0;h<100;h=h+2)
         {
