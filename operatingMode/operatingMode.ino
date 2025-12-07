@@ -10,6 +10,15 @@ const int checkRotPin = 2;
 const int pulsePin = 3;
 uint8_t rgb[3]={0,0,0};
 
+// rainbow stuff
+
+// remembers position during loop
+uint16_t offset = 0;
+// colorchange per pixel -> high number skips more colors, but u get more rainbowcycles within one strip
+int rainbowSpeed = 1;
+uint16_t colorIndex = 0;
+bool rainbowAnimation = 0;
+
 
 // Perlin Noise Stuff
 const int myNodes = 7;
@@ -81,6 +90,31 @@ void loop() {
   int flip2 = 0;
   int count = 0;
   
+  if(rainbowAnimation && checkRot)
+  {
+
+    for (int i = 0; i < strip.numPixels(); i++) 
+    {
+      // offset + pixel index → makes colors "move"
+      colorIndex = (i * rainbowSpeed + offset) & 255;
+      wheel(colorIndex, rgb);
+      strip.setPixelColor(i, strip.Color(rgb[0], rgb[1], rgb[2]));
+    }
+
+  strip.show();
+  offset++;   // shift rainbow
+  delay(25);
+
+  }
+
+  else if(rainbowAnimation)
+  {
+    strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
+    strip.show();
+  }
+
+//////////////////////////////////////////
+
   if(oceanAnimation && checkRot)
   {
     for(int i=0;i<mySteps;i++)
@@ -92,9 +126,9 @@ void loop() {
 
       for(int led=0; led<mySize; led++) //light em up
       {
-          rgb[0] = round((RledVals[led] + 510) / 3);
-          rgb[1] = round(GledVals[led]) / 2 ;
-          rgb[2] = round(BledVals[led] / 8.0);
+          rgb[2] = round((RledVals[led]) / 10);
+          rgb[1] = round(GledVals[led]) / 4;
+          rgb[0] = round((BledVals[led] + 125) / 1.5);
 
           strip.setPixelColor(led, strip.Color(rgb[0],rgb[1],rgb[2]));
       }      
@@ -160,6 +194,7 @@ void loop() {
     if(count>0)
     {
       oceanAnimation = 0;
+      rainbowAnimation = 0;
       Serial.print("r-Value: ");
       Serial.println(rgb[0]);
       softClose(rgb);
@@ -250,6 +285,23 @@ void loop() {
         oceanAnimation = 1; // turn on animation
       }
 
+/////////////////////////////////
+
+      if (count == 8)
+      {
+        for (int h=0;h<100;h=h+2)
+        {
+          rgb[0] = 2*h;
+          rgb[1] = 2*h;
+          rgb[2] = 2*h;
+          strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
+          strip.show();
+          delay(25);
+        }
+
+        rainbowAnimation = 1; // turn on animation
+      }
+
 ////////////////////////////////
       
           Serial.println(count);
@@ -261,6 +313,34 @@ void loop() {
       //strip.show();
 }
 
+
+void wheel(byte pos, uint8_t rgb[]) // color wheel for rainbow
+{
+  if (pos < 85) 
+  {
+    rgb[0] = pos * 3;
+    rgb[1] = 255 - pos * 3;
+    rgb[2] = 0;
+  } 
+  
+  else if (pos < 170) 
+  {
+    pos -= 85;
+
+    rgb[2] = pos * 3;
+    rgb[0] = 255 - pos * 3;
+    rgb[1] = 0;
+
+  }
+  else 
+  {
+    pos -= 170;
+
+    rgb[1] = pos * 3;
+    rgb[2] = 255 - pos * 3;
+    rgb[0] = 0;
+  }
+}
 
 void genCoordinates(float coords[], int nodes, int steps)
 {

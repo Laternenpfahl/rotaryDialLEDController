@@ -10,13 +10,6 @@ const int checkRotPin = 2;
 const int pulsePin = 3;
 uint8_t rgb[3]={0,0,0};
 
-// remembers position during loop
-uint16_t offset = 0;
-// colorchange per pixel -> high number skips more colors, but u get more rainbowcycles within one strip
-int rainbowSpeed = 1;
-uint16_t colorIndex = 0;
-
-bool rainbowAnimation = 0;
 
 
 void setup() {
