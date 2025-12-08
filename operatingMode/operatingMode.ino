@@ -128,9 +128,13 @@ void loop() {
         {
           rgb[0] = round((RledVals[led]) / 5);
           rgb[1] = round(GledVals[led]);
-          rgb[2] = round((BledVals[led]) * 2.6);
+          rgb[2] = round((BledVals[led]) * 2);
 
           if(rgb[2]>255)rgb[2]=255;
+          
+          // increase dynamics
+          if(rgb[1]>125) rgb[1]=rgb[1]*1.3 & 255;
+          if(rgb[1]<125) rgb[1]=rgb[1]*0.7;
 
           strip.setPixelColor(led, strip.Color(rgb[0],rgb[1],rgb[2]));
         }
@@ -139,8 +143,12 @@ void loop() {
         {
           // fire animation
           rgb[2] = 0;
-          rgb[1] = round(GledVals[led] / 1.3);
+          rgb[1] = round(GledVals[led] / 1.5);
           rgb[0] = 255;
+
+          // increase dynamics
+          if(rgb[1]>125) rgb[1]=rgb[1]*1.3;
+          if(rgb[1]<125) rgb[1]=rgb[1]*0.7;
 
           strip.setPixelColor(led, strip.Color(rgb[0],rgb[1],rgb[2]));
         }
