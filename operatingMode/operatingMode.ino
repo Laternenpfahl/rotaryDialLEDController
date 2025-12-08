@@ -23,8 +23,8 @@ bool ocean = 0;
 
 
 // Perlin Noise Stuff
-const int myNodes = 5;
-const int mySteps = 15;
+const int myNodes = 4;
+const int mySteps = 20;
 const int mySize = (myNodes-1)*mySteps;
 float myCoords[(myNodes-1)*mySteps];
 
@@ -116,7 +116,8 @@ void loop() {
   {
     for(int i=0;i<mySteps;i++)
     {
-
+      checkRot = digitalRead(checkRotPin);
+      
       calcOcean(Rgradx0, Rgrady0, Rgradx1, Rgrady1, RledVals, myCoords, myCoords[i]);
       calcOcean(Ggradx0, Ggrady0, Ggradx1, Ggrady1, GledVals, myCoords, myCoords[i]);
       calcOcean(Bgradx0, Bgrady0, Bgradx1, Bgrady1, BledVals, myCoords, myCoords[i]);
@@ -130,11 +131,11 @@ void loop() {
           rgb[1] = round(GledVals[led]);
           rgb[2] = round((BledVals[led]) * 2);
 
-          if(rgb[2]>255)rgb[2]=255;
-          
           // increase dynamics
-          if(rgb[1]>125) rgb[1]=rgb[1]*1.3 & 255;
-          if(rgb[1]<125) rgb[1]=rgb[1]*0.7;
+          if(rgb[1]<120) rgb[1]=rgb[1]*0.8;
+
+          if(rgb[1]>255)rgb[1]=255;
+          if(rgb[2]>255)rgb[2]=255;
 
           strip.setPixelColor(led, strip.Color(rgb[0],rgb[1],rgb[2]));
         }
@@ -143,12 +144,11 @@ void loop() {
         {
           // fire animation
           rgb[2] = 0;
-          rgb[1] = round(GledVals[led] / 1.5);
+          rgb[1] = round(GledVals[led] / 1.2);
           rgb[0] = 255;
 
           // increase dynamics
-          if(rgb[1]>125) rgb[1]=rgb[1]*1.3;
-          if(rgb[1]<125) rgb[1]=rgb[1]*0.7;
+          if(rgb[1]<125) rgb[1]=rgb[1]*0.8;
 
           strip.setPixelColor(led, strip.Color(rgb[0],rgb[1],rgb[2]));
         }
@@ -301,9 +301,9 @@ void loop() {
           delay(delayTime);
         }
 
-        delayTime = 15;
+        delayTime = 20;
 
-        ocean = 1;
+        ocean = 1; //if 0 its in fire mode
         oceanAnimation = 1; // turn on animation
       }
 
