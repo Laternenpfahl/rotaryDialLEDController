@@ -8,14 +8,15 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 const int checkRotPin = 2;
 const int pulsePin = 3;
-uint8_t rgb[3]={0,0,0};
+int delayTime = 30;
+uint16_t rgb[3]={0,0,0};
 
 // rainbow stuff
 
 // remembers position during loop
 uint16_t offset = 0;
 // colorchange per pixel -> high number skips more colors, but u get more rainbowcycles within one strip
-int rainbowSpeed = 5;
+int rainbowSpeed = 3;
 uint16_t colorIndex = 0;
 bool rainbowAnimation = 0;
 bool ocean = 0;
@@ -104,15 +105,10 @@ void loop() {
 
   strip.show();
   offset++;   // shift rainbow
-  delay(15);
+  delay(delayTime);
 
   }
 
-  else if(rainbowAnimation)
-  {
-    strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
-    strip.show();
-  }
 
 //////////////////////////////////////////
 
@@ -130,9 +126,11 @@ void loop() {
 
         if(ocean)
         {
-          rgb[0] = round((RledVals[led]) / 10);
+          rgb[0] = round((RledVals[led]) / 5);
           rgb[1] = round(GledVals[led]);
-          rgb[2] = round((BledVals[led]) * 1.3) & 255;
+          rgb[2] = round((BledVals[led]) * 2.6);
+
+          if(rgb[2]>255)rgb[2]=255;
 
           strip.setPixelColor(led, strip.Color(rgb[0],rgb[1],rgb[2]));
         }
@@ -140,9 +138,9 @@ void loop() {
         else
         {
           // fire animation
-          rgb[2] = round((RledVals[led]) / 10);
-          rgb[1] = round(GledVals[led] / 2.5);
-          rgb[0] = round((BledVals[led]) * 1.3) & 255;
+          rgb[2] = 0;
+          rgb[1] = round(GledVals[led] / 1.3);
+          rgb[0] = 255;
 
           strip.setPixelColor(led, strip.Color(rgb[0],rgb[1],rgb[2]));
         }
@@ -151,7 +149,7 @@ void loop() {
       strip.setPixelColor(60, strip.Color(rgb[0],rgb[1],rgb[2])); // setting last LED to second to last color bc I cut the strip at a stupid place
 
       strip.show();
-      delay(25);
+      delay(delayTime);
 
       if(i==mySteps-1) //THIS NEEDS TO GO IN LOOP
       {
@@ -175,16 +173,11 @@ void loop() {
     }
   }
 
-  else if(oceanAnimation)
-  {
-    strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
-    strip.show();
-  }
-
   while (!checkRot) // Wheel is being turned
   {
       pulseState = digitalRead(pulsePin);
       checkRot = digitalRead(checkRotPin);
+      delayTime = 25;
 
       if(pulseState && !checkRot)
       {
@@ -226,7 +219,7 @@ void loop() {
           rgb[2] = 0;
           strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
           strip.show();
-          delay(25);
+          delay(delayTime);
         }
       }
 
@@ -246,7 +239,7 @@ void loop() {
           rgb[2] = 2*h;
           strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
           strip.show();
-          delay(25);
+          delay(delayTime);
         }
       }
 
@@ -263,7 +256,7 @@ void loop() {
           strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
           strip.show();
           
-          delay(25);
+          delay(delayTime);
         }
       }
 
@@ -280,7 +273,7 @@ void loop() {
           strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
           strip.show();
 
-          delay(25);
+          delay(delayTime);
         }
       }
 
@@ -288,15 +281,18 @@ void loop() {
 
       if (count == 7)
       {
-        for (int h=0;h<130;h=h+5)
+        for (int h=0;h<125;h=h+5)
         {
           rgb[0] = 0;
           rgb[1] = h;
-          rgb[2] = 1.3*h;
+          rgb[2] = 2*h;
           strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
           strip.show();
-          delay(25);
+          delay(delayTime);
         }
+
+        delayTime = 15;
+
         ocean = 1;
         oceanAnimation = 1; // turn on animation
       }
@@ -305,32 +301,41 @@ void loop() {
 
       if (count == 8)
       {
-        for (int h=0;h<130;h=h+5)
+        for (int h=0;h<125;h=h+5)
         {
           rgb[2] = 0;
-          rgb[1] = h/2.5;
-          rgb[0] = 1.3*h;
+          rgb[1] = h/2;
+          rgb[0] = 2*h;
           strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
           strip.show();
-          delay(25);
+          delay(delayTime);
         }
-
+        delayTime = 5;
         oceanAnimation = 1; // turn on animation
       }
 /////////////////////////////////
 
       if (count == 9)
       {
-        for (int h=0;h<100;h=h+2)
+        for (float h=0;h<1;h=h+0.05)
         {
-          rgb[0] = 2*h;
-          rgb[1] = 2*h;
-          rgb[2] = 2*h;
-          strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
-          strip.show();
-          delay(25);
-        }
 
+          for (int i = 0; i < strip.numPixels(); i++) 
+          {
+            // offset + pixel index → makes colors "move"
+            colorIndex = (i * rainbowSpeed) + offset & 255;
+            wheel(colorIndex, rgb);
+            rgb[0] = rgb[0] * h;
+            rgb[1] = rgb[1] * h;
+            rgb[2] = rgb[2] * h;
+
+            strip.setPixelColor(i, strip.Color(rgb[0], rgb[1], rgb[2]));
+          }
+
+          strip.show();
+          delay(delayTime);
+        }
+        delayTime = 15;
         rainbowAnimation = 1; // turn on animation
       }
 
@@ -346,7 +351,7 @@ void loop() {
 }
 
 
-void wheel(byte pos, uint8_t rgb[]) // color wheel for rainbow
+void wheel(byte pos, uint16_t rgb[]) // color wheel for rainbow
 {
   if (pos < 85) 
   {
@@ -480,7 +485,7 @@ void calcOcean(float gradx0[], float grady0[], float gradx1[], float grady1[], f
   }
 
 
-void softClose(uint8_t rgb[])
+void softClose(uint16_t rgb[])
 {
     float dimming=0.65;
 
