@@ -148,6 +148,8 @@ void loop() {
 
       strip.setPixelColor(60, strip.Color(rgb[0],rgb[1],rgb[2])); // setting last LED to second to last color bc I cut the strip at a stupid place
 
+      if(!checkRot) break;
+
       strip.show();
       delay(delayTime);
 
