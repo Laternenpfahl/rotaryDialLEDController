@@ -143,12 +143,15 @@ void loop() {
         else
         {
           // fire animation
-          rgb[2] = 0;
-          rgb[1] = round(GledVals[led] / 1.2);
-          rgb[0] = 255;
 
-          // increase dynamics
-          if(rgb[1]<125) rgb[1]=rgb[1]*0.8;
+          //use unused perlin noise data for light intensity modulation
+          BledVals[led]=BledVals[led]/127.5;
+          if(BledVals[led] > 1) BledVals[led]=1;
+
+          rgb[2] = 0;
+          rgb[1] = round(GledVals[led] * BledVals[led] / 1.2);
+          rgb[0] = round(255*BledVals[led]);
+
 
           strip.setPixelColor(led, strip.Color(rgb[0],rgb[1],rgb[2]));
         }
