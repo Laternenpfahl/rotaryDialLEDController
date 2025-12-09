@@ -145,11 +145,11 @@ void loop() {
           // fire animation
 
           //use unused perlin noise data for light intensity modulation
-          BledVals[led]=BledVals[led]/127.5;
+          BledVals[led]=BledVals[led]/120;
           if(BledVals[led] > 1) BledVals[led]=1;
 
           rgb[2] = 0;
-          rgb[1] = round(GledVals[led] * BledVals[led] / 1.2);
+          rgb[1] = round(GledVals[led] * BledVals[led] / 1.4);
           rgb[0] = round(255*BledVals[led]);
 
 
