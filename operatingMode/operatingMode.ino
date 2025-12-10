@@ -23,8 +23,8 @@ bool ocean = 0;
 
 
 // Perlin Noise Stuff
-const int myNodes = 4;
-const int mySteps = 20;
+const int myNodes = 5;
+const int mySteps = 15;
 const int mySize = (myNodes-1)*mySteps;
 float myCoords[(myNodes-1)*mySteps];
 
@@ -127,12 +127,14 @@ void loop() {
 
         if(ocean)
         {
-          rgb[0] = round((RledVals[led]) / 5);
-          rgb[1] = round(GledVals[led]);
-          rgb[2] = round((BledVals[led]) * 2);
 
-          // increase dynamics
-          if(rgb[1]<120) rgb[1]=rgb[1]*0.8;
+          rgb[0] = round(RledVals[led]/5.0);
+          //use unused perlin noise data for light intensity modulation
+          RledVals[led]=RledVals[led]/140;
+          if(RledVals[led] > 1) RledVals[led]=1;
+
+          rgb[1] = round(GledVals[led] * RledVals[led]);
+          rgb[2] = round((BledVals[led]) * 2 * RledVals[led]);
 
           if(rgb[1]>255)rgb[1]=255;
           if(rgb[2]>255)rgb[2]=255;
@@ -145,7 +147,7 @@ void loop() {
           // fire animation
 
           //use unused perlin noise data for light intensity modulation
-          BledVals[led]=BledVals[led]/120;
+          BledVals[led]=BledVals[led]/140;
           if(BledVals[led] > 1) BledVals[led]=1;
 
           rgb[2] = 0;
@@ -223,7 +225,7 @@ void loop() {
 
 ////////////////////////////////
 
-      if (count == 1)
+      if (count == 8)
       {
         for (int h=0;h<120;h=h+2)
         {
@@ -243,7 +245,7 @@ void loop() {
 
 ////////////////////////////////
 
-      if (count == 3)
+      if (count == 7)
       {
         for (int h=0;h<120;h=h+4)
         {
@@ -292,7 +294,7 @@ void loop() {
 
 ////////////////////////////////
 
-      if (count == 7)
+      if (count == 3)
       {
         for (int h=0;h<125;h=h+5)
         {
@@ -312,7 +314,7 @@ void loop() {
 
 //////////////////////////////
 
-      if (count == 8)
+      if (count == 1)
       {
         for (int h=0;h<125;h=h+5)
         {
@@ -323,12 +325,12 @@ void loop() {
           strip.show();
           delay(delayTime);
         }
-        delayTime = 5;
+        delayTime = 15;
         oceanAnimation = 1; // turn on animation
       }
 /////////////////////////////////
 
-      if (count == 9)
+      if (count == 5)
       {
         for (float h=0;h<1;h=h+0.05)
         {
