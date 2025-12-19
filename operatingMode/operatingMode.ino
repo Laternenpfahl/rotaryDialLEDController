@@ -8,6 +8,7 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 const int checkRotPin = 2;
 const int pulsePin = 3;
+const int maxBrightness = 250;
 int delayTime = 30;
 uint16_t rgb[3]={0,0,0};
 
@@ -80,6 +81,7 @@ void setup() {
   {
     strip.setPixelColor(i, strip.Color(0,0,0));
   }
+  strip.setBrightness(maxBrightness);
   strip.show();
 
 }
@@ -128,13 +130,13 @@ void loop() {
         if(ocean)
         {
 
-          rgb[0] = round(RledVals[led]/5.0);
+          rgb[0] = 0;
           //use unused perlin noise data for light intensity modulation
-          RledVals[led]=RledVals[led]/140;
+          RledVals[led]=RledVals[led]/180;
           if(RledVals[led] > 1) RledVals[led]=1;
 
-          rgb[1] = round(GledVals[led] * RledVals[led]);
-          rgb[2] = round((BledVals[led]) * 2 * RledVals[led]);
+          rgb[1] = round(GledVals[led] * 1.4 * RledVals[led]);
+          rgb[2] = round(BledVals[led] * 1.4 * RledVals[led]);
 
           if(rgb[1]>255)rgb[1]=255;
           if(rgb[2]>255)rgb[2]=255;
@@ -279,7 +281,7 @@ void loop() {
 
       if (count == 6)
       {
-        for (int h=0;h<250;h=h+5)
+        for (int h=0;h<maxBrightness;h=h+5)
         {
           rgb[0] = h;
           rgb[1] = 0;
@@ -504,16 +506,11 @@ void softClose(uint16_t rgb[])
 {
     float dimming=0.65;
 
-    for (int h=0;h<15;h++)
+    for (int h=maxBrightness;h>0;h=h-5;)
     {
 
-      rgb[0] = dimming*rgb[0];
-      rgb[1] = dimming*rgb[1];
-      rgb[2] = dimming*rgb[2];
-  
-      strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
+      strip.setBrightness(h);
       strip.show();
-      
       delay(25);
     }
 
@@ -522,5 +519,6 @@ void softClose(uint16_t rgb[])
     rgb[2] = 0;
 
     strip.fill(strip.Color(rgb[0], rgb[1], rgb[2]));
+    strip.setBrightness(maxBrightness);
     strip.show();
 }
