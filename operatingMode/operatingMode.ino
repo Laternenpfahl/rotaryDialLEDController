@@ -132,7 +132,7 @@ void loop() {
 
           rgb[0] = 0;
           //use unused perlin noise data for light intensity modulation
-          RledVals[led]=RledVals[led]/180;
+          RledVals[led]=RledVals[led]/140;
           if(RledVals[led] > 1) RledVals[led]=1;
 
           rgb[1] = round(GledVals[led] * 1.4 * RledVals[led]);
@@ -308,7 +308,7 @@ void loop() {
           delay(delayTime);
         }
 
-        delayTime = 20;
+        delayTime = 15;
 
         ocean = 1; //if 0 its in fire mode
         oceanAnimation = 1; // turn on animation
@@ -504,14 +504,13 @@ void calcOcean(float gradx0[], float grady0[], float gradx1[], float grady1[], f
 
 void softClose(uint16_t rgb[])
 {
-    float dimming=0.65;
 
-    for (int h=maxBrightness;h>0;h=h-5;)
+    for (int h=maxBrightness;h>0;h=h-10)
     {
 
       strip.setBrightness(h);
       strip.show();
-      delay(25);
+      delay(20);
     }
 
     rgb[0] = 0;
